@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ELM Team Hub</title>
+  <link rel="icon" href="assets/elm-logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <img src="assets/elm-logo.svg" alt="ELM logo" class="brand-logo">
+        <div class="brand-text">
+          <strong>Team Hub</strong>
+          <span>Handover &amp; Daily Work</span>
+        </div>
+      </div>
+      <nav class="nav" id="nav">
+        <button class="nav-item active" data-view="dashboard"><span class="ico">▦</span>Dashboard</button>
+        <button class="nav-item" data-view="handovers"><span class="ico">⇄</span>Handovers<span class="badge" id="badge-handovers"></span></button>
+        <button class="nav-item" data-view="urls"><span class="ico">🔗</span>Test URLs</button>
+        <button class="nav-item" data-view="team"><span class="ico">👥</span>Team Status</button>
+        <button class="nav-item" data-view="todos"><span class="ico">✓</span>To-Do<span class="badge" id="badge-todos"></span></button>
+        <button class="nav-item" data-view="notes"><span class="ico">✎</span>Notes</button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn ghost small" id="btn-export" title="Download a backup of all data">⤓ Export</button>
+        <label class="btn ghost small" title="Restore data from a backup file">⤒ Import
+          <input type="file" id="file-import" accept="application/json" hidden>
+        </label>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="btn-menu" aria-label="Open menu">☰</button>
+        <div class="title-block">
+          <h1 id="view-title">Dashboard</h1>
+          <span id="today-label" class="muted"></span>
+        </div>
+        <div class="search">
+          <input type="search" id="search" placeholder="Search in this page…" aria-label="Search">
+        </div>
+        <button class="btn primary" id="btn-add">+ New</button>
+        <button class="icon-btn" id="btn-theme" aria-label="Toggle dark mode" title="Toggle dark mode"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+      </header>
+
+      <main class="content" id="content"></main>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal" hidden>
+    <form class="modal" id="modal-form" novalidate>
+      <div class="modal-head">
+        <h2 id="modal-title">New item</h2>
+        <button type="button" class="icon-btn" data-close aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-foot">
+        <button type="button" class="btn danger ghost" id="modal-delete" hidden>Delete</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
