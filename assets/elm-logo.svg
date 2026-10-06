@@ -1,12 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 64" role="img" aria-label="ELM">
-  <!-- Placeholder ELM wordmark. Replace this file with the official ELM logo (keep the same file name). -->
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 825.1 325.3">
+  <!-- Generator: Adobe Illustrator 29.0.1, SVG Export Plug-In . SVG Version: 2.1.0 Build 192)  -->
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#00A88F"/>
-      <stop offset="1" stop-color="#006E6A"/>
-    </linearGradient>
+    <style>
+      .st0 {
+        fill: #cc8bdb;
+      }
+
+      .st1 {
+        fill: #ffa168;
+      }
+
+      .st2 {
+        fill: #763cbc;
+      }
+
+      .st3 {
+        fill: #0071ce;
+      }
+
+      .st4 {
+        fill: #00a1e0;
+      }
+
+      .st5 {
+        fill: #051d49;
+      }
+
+      .st6 {
+        fill: #ff5d36;
+      }
+    </style>
   </defs>
-  <rect x="2" y="6" width="52" height="52" rx="14" fill="url(#g)"/>
-  <path d="M16 22h24M16 32h18M16 42h24" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
-  <text x="64" y="45" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="700" fill="#00897b" letter-spacing="1">elm</text>
+  <polygon class="st5" points="598.7 325.3 628.7 325.3 628.7 178.6 598.7 195.9 598.7 325.3"/>
+  <path class="st5" d="M528.4,213.7h-33c-22.3,0-40.3,18.1-40.3,40.3v30.9c0,22.3,18.1,40.3,40.3,40.3h73.4v-26.5h-75.6c-4.5,0-8.1-3.6-8.1-8.1v-8.7h83.7v-27.9c0-22.3-18.1-40.3-40.3-40.3M538.7,261.5h-53.6v-13.2c0-4.5,3.6-8.1,8.1-8.1h37.5c4.5,0,8.1,3.6,8.1,8.1v13.2Z"/>
+  <path class="st5" d="M784.8,213.7h-25l-16.9,9.7c-7.1-6.1-16.2-9.7-26.3-9.7h-30.6s-27.2,0-27.2,0v111.5h30v-85h0s16.5,0,16.5,0h13.5c4.4,0,8.1,3.6,8.1,8.1v76.9h30v-71.2c0-4.8-.9-9.5-2.4-13.8h32.5c4.5,0,8.1,3.6,8.1,8.1v76.9h30v-71.2c0-22.3-18-40.3-40.3-40.3"/>
+  <path class="st5" d="M748.9,136.3v-43c0-4.5,3.6-8.1,8.1-8.1h38.2v-26.6h-35.9c-22.3,0-40.3,18.1-40.3,40.3v37.3h-22c-4.4,0-8.1-3.6-8.1-8.1V16.1l-30,17.3v89.1c0,4.8.9,9.5,2.4,13.7h-32.5V58.7h-58c-22.3,0-40.3,18.1-40.3,40.3v37.3h-62.1l-15.3,26.6h203l16.9-9.7c7.1,6.1,16.2,9.7,26.3,9.7h126v-26.5h-76.2ZM560.5,136.3v-43c0-4.5,3.6-8.1,8.1-8.1h30.2v51h-38.2Z"/>
+  <polygon class="st6" points="169.1 260.3 169.1 195 225.6 227.8 225.6 292.8 169.1 260.3"/>
+  <polygon class="st2" points="169.1 130 225.6 97.5 225.6 162.5 169.1 195 169.1 130"/>
+  <polygon class="st2" points="282.2 65 225.6 97.5 225.6 32.5 282.2 0 282.2 65"/>
+  <polygon class="st2" points="56.3 130 112.8 97.5 112.8 162.5 56.3 195 56.3 130"/>
+  <polygon class="st0" points="112.8 162.5 112.8 97.5 169.1 130 169.1 195 112.8 162.5"/>
+  <polygon class="st3" points="338.4 162.5 338.4 97.5 395 130 395 195 338.4 162.5"/>
+  <polygon class="st1" points="0 292.8 56.3 260.3 112.8 292.8 56.3 325.3 0 292.8"/>
+  <polygon class="st1" points="112.8 292.8 169.1 260.3 225.6 292.8 169.1 325.3 112.8 292.8"/>
+  <polygon class="st4" points="169.1 195 225.6 162.5 281.9 195 225.6 227.8 169.1 195"/>
+  <polygon class="st4" points="281.9 195 338.4 162.5 395 195 338.4 227.8 281.9 195"/>
 </svg>
