@@ -49,9 +49,8 @@ From now on every change is saved to that file automatically. The sidebar shows 
 
 ## Company logo
 
-`assets/elm-logo.svg` is a **placeholder** wordmark. To use the official ELM logo,
-replace that file with the official logo, keeping the same file name
-(or update the `src` in `index.html` if you use a PNG).
+`assets/elm-logo.svg` holds the official ELM logo. To change it, replace that file
+and keep the same file name (or update the two `elm-logo.svg` references in `index.html` if you use a PNG).
 
 ## Project structure
 
