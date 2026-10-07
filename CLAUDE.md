@@ -11,6 +11,7 @@ from a local folder (file://), so keep it working with no server and no build st
   - `SCHEMAS` defines each collection's form fields (handovers, urls, team, todos, notes); the modal form is generated from it
   - `VIEWS` holds one render function per page; event handling is delegated via `data-act` attributes
   - data is stored in `localStorage` under `elm-team-hub-v1`; Export/Import writes/reads JSON `{ app, version, exported, data }`
+  - optional data file (Chrome/Edge, File System Access API): `save()` also writes the same JSON to a file the user linked; the file handle is kept in IndexedDB (`elm-team-hub` / `kv` / `dataFile`); `elm-team-hub-sync` tracks `localChanged` vs `fileSynced` so edits made while disconnected prompt before being overwritten; the "Reconnect" banner re-requests permission
 - `assets/elm-logo.svg` — official ELM logo uploaded by the owner (wide wordmark, dark-navy text)
 
 ## Conventions
@@ -21,5 +22,5 @@ from a local folder (file://), so keep it working with no server and no build st
 - Don't commit screenshots or test output (`*.png` is gitignored outside `assets/`)
 
 ## Status / ideas not done yet
-- Data is per-browser only; a shared backend would be needed for team-wide data
+- Data is per-user (browser or linked file); a shared backend would be needed for team-wide data
 - Logo's navy text is hard to read in dark mode (could add a light badge behind it)

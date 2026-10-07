@@ -25,6 +25,10 @@
         <button class="nav-item" data-view="todos"><span class="ico">✓</span>To-Do<span class="badge" id="badge-todos"></span></button>
         <button class="nav-item" data-view="notes"><span class="ico">✎</span>Notes</button>
       </nav>
+      <button class="datafile" id="btn-datafile" type="button" title="Where your data is saved">
+        <span class="df-dot" id="df-dot"></span>
+        <span class="df-text"><span id="df-title">Saved in this browser only</span><small id="df-sub">Click to save to a file in your folder</small></span>
+      </button>
       <div class="sidebar-footer">
         <button class="btn ghost small" id="btn-export" title="Download a backup of all data">⤓ Export</button>
         <label class="btn ghost small" title="Restore data from a backup file">⤒ Import
@@ -47,6 +51,10 @@
         <button class="icon-btn" id="btn-theme" aria-label="Toggle dark mode" title="Toggle dark mode"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
       </header>
 
+      <div class="banner" id="df-banner" hidden>
+        <span id="df-banner-text"></span>
+        <button class="btn primary small" id="df-banner-btn" type="button">Reconnect</button>
+      </div>
       <main class="content" id="content"></main>
     </div>
   </div>
@@ -61,8 +69,8 @@
       <div class="modal-foot">
         <button type="button" class="btn danger ghost" id="modal-delete" hidden>Delete</button>
         <span class="spacer"></span>
-        <button type="button" class="btn ghost" data-close>Cancel</button>
-        <button type="submit" class="btn primary">Save</button>
+        <button type="button" class="btn ghost" id="modal-cancel" data-close>Cancel</button>
+        <button type="submit" class="btn primary" id="modal-save">Save</button>
       </div>
     </form>
   </div>
