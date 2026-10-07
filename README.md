@@ -25,18 +25,32 @@ Also: search on every page, dark mode, mobile-friendly layout, and **Export / Im
 
 ## Where is my data stored?
 
-Data is saved in your browser's local storage on your own computer. Nothing is sent to any server.
+By default, data is saved inside your browser (localStorage) on your own computer. Nothing is sent to any server.
 
-- Use **Export** regularly to download a backup file.
-- Use **Import** to restore a backup or move your data to another computer or browser.
-- Clearing browser data will erase it, so keep backups.
+### Save your data to a file in your folder (recommended, Chrome or Edge)
+
+1. Click the **"Saved in this browser only"** box at the bottom of the sidebar.
+2. Click **Create a new data file**, go to your ELM Team Hub folder (next to `index.html`) and click **Save**.
+   The file is called `elm-team-hub-data.json`.
+3. When asked, allow the page to edit the file.
+
+From now on every change is saved to that file automatically. The sidebar shows **"Saving to elm-team-hub-data.json"** with the last saved time.
+
+- When you open the tool again, the browser may ask for permission: click **Reconnect** in the yellow bar at the top.
+- On another computer, copy the folder and use **Open an existing data file** to pick `elm-team-hub-data.json`.
+- If you moved or renamed the file, click the sidebar box and choose the file again.
+- Keeping the folder in OneDrive gives you automatic cloud backup.
+
+### Export / Import (backups)
+
+- **Export** (bottom of the sidebar) downloads a backup file such as `elm-team-hub-backup-2026-10-07.json` to your Downloads folder.
+- **Import** loads a backup and replaces the current data.
 - Avoid storing passwords in the tool; store the test username only.
 
 ## Company logo
 
-`assets/elm-logo.svg` is a **placeholder** wordmark. To use the official ELM logo,
-replace that file with the official logo, keeping the same file name
-(or update the `src` in `index.html` if you use a PNG).
+`assets/elm-logo.svg` holds the official ELM logo. To change it, replace that file
+and keep the same file name (or update the two `elm-logo.svg` references in `index.html` if you use a PNG).
 
 ## Project structure
 

@@ -4,6 +4,7 @@
   'use strict';
 
   const STORAGE_KEY = 'elm-team-hub-v1';
+  const SYNC_KEY = 'elm-team-hub-sync';
   const THEME_KEY = 'elm-team-hub-theme';
 
   // ---------- Option lists & status colors ----------
@@ -117,10 +118,43 @@
     return seed();
   }
 
-  function save() {
+  function persistLocal() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }
     catch (e) { toast('Could not save — browser storage is unavailable'); }
     updateBadges();
+  }
+
+  // Called after every change: saves in the browser and, if linked, to the data file.
+  function save() {
+    persistLocal();
+    setSync({ localChanged: Date.now() });
+    scheduleFileWrite();
+  }
+
+  // Tracks when data last changed vs. when it last reached the data file,
+  // so unsaved changes made while the file was disconnected are not silently lost.
+  function getSync() {
+    try { return JSON.parse(localStorage.getItem(SYNC_KEY)) || {}; } catch (e) { return {}; }
+  }
+  function setSync(patch) {
+    try { localStorage.setItem(SYNC_KEY, JSON.stringify(Object.assign(getSync(), patch))); } catch (e) { /* ignore */ }
+  }
+
+  function serialize() {
+    return JSON.stringify({ app: 'elm-team-hub', version: 1, exported: new Date().toISOString(), data: db }, null, 2);
+  }
+
+  // Parses an export / data file; throws if it is not ELM Team Hub data.
+  function parseBackup(text) {
+    const parsed = JSON.parse(text);
+    const data = parsed && (parsed.data || parsed);
+    const keys = Object.keys(emptyDb());
+    if (!data || !keys.some(k => Array.isArray(data[k]))) throw new Error('bad file');
+    const next = emptyDb();
+    keys.forEach(k => {
+      if (Array.isArray(data[k])) next[k] = data[k].filter(x => x && typeof x === 'object').map(x => Object.assign({ id: uid(), created: Date.now() }, x));
+    });
+    return next;
   }
 
   function seed() {
@@ -461,6 +495,8 @@
   const $form = document.getElementById('modal-form');
   const $body = document.getElementById('modal-body');
   const $del = document.getElementById('modal-delete');
+  const $save = document.getElementById('modal-save');
+  const $cancel = document.getElementById('modal-cancel');
   let editing = null; // { coll, id }
 
   function fieldHtml(f, v) {
@@ -490,6 +526,8 @@
     editing = { coll, id };
     document.getElementById('modal-title').textContent = (id ? 'Edit ' : 'New ') + schema.label.toLowerCase();
     $del.hidden = !id;
+    $save.hidden = false;
+    $cancel.textContent = 'Cancel';
 
     let html = '', halfBuf = [];
     const flush = () => { if (halfBuf.length) { html += `<div class="row2">${halfBuf.join('')}</div>`; halfBuf = []; } };
@@ -539,7 +577,13 @@
 
     const now = Date.now();
     if (id) Object.assign(find(coll, id), data, { updated: now });
-    else db[coll].push(Object.assign({ id: uid(), created: now, updated: now }, data));
+    else {
+      db[coll].push(Object.assign({ id: uid(), created: now, updated: now }, data));
+      // Show the new item even if the current tab or search would hide it.
+      const filterKey = { handovers: 'handoverFilter', urls: 'envFilter', team: 'teamFilter', todos: 'todoFilter' }[coll];
+      if (filterKey) ui[filterKey] = 'All';
+      clearSearch();
+    }
     save();
     closeModal();
     render();
@@ -619,15 +663,34 @@
   $content.addEventListener('submit', e => {
     if (e.target.dataset.form !== 'quick-todo') return;
     e.preventDefault();
-    const title = e.target.elements.title.value.trim();
-    if (!title) return;
+    const field = e.target.elements.title;
+    const title = field.value.trim();
+    if (!title) {
+      field.classList.add('invalid');
+      field.focus();
+      toast('Type a task first, then click Add');
+      return;
+    }
     const now = Date.now();
     db.todos.push({ id: uid(), title, priority: e.target.elements.priority.value, due: todayISO(), category: '', notes: '', done: false, created: now, updated: now });
+    // The new task is due today: switch away from a tab or search that would hide it.
+    if (ui.view === 'todos' && ui.todoFilter !== 'Today' && ui.todoFilter !== 'All') ui.todoFilter = 'Today';
+    clearSearch();
     save();
     render();
+    toast('Task added');
     const input = $content.querySelector('.quick-add input');
     if (input) input.focus();
   });
+
+  $content.addEventListener('input', e => {
+    if (e.target.classList.contains('invalid')) e.target.classList.remove('invalid');
+  });
+
+  function clearSearch() {
+    ui.search = '';
+    document.getElementById('search').value = '';
+  }
 
   document.getElementById('btn-add').addEventListener('click', () => { if (SCHEMAS[ui.view]) openModal(ui.view); });
   document.getElementById('btn-menu').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
@@ -663,7 +726,7 @@
 
   // ---------- Export / Import ----------
   document.getElementById('btn-export').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify({ app: 'elm-team-hub', version: 1, exported: new Date().toISOString(), data: db }, null, 2)], { type: 'application/json' });
+    const blob = new Blob([serialize()], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `elm-team-hub-backup-${todayISO()}.json`;
@@ -678,13 +741,8 @@
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const parsed = JSON.parse(reader.result);
-        const data = parsed.data || parsed;
-        const keys = Object.keys(emptyDb());
-        if (!keys.some(k => Array.isArray(data[k]))) throw new Error('bad file');
+        const next = parseBackup(reader.result);
         if (!confirm('Importing will replace all current data. Continue?')) return;
-        const next = emptyDb();
-        keys.forEach(k => { if (Array.isArray(data[k])) next[k] = data[k].filter(x => x && typeof x === 'object').map(x => Object.assign({ id: uid(), created: Date.now() }, x)); });
         db = next;
         save();
         render();
@@ -697,6 +755,205 @@
     };
     reader.readAsText(file);
   });
+
+  // ---------- Data file ----------
+  // Chrome/Edge only: keep the data in a JSON file the user picks (e.g. next to index.html).
+  // The file handle is remembered in IndexedDB; the browser may ask for permission again
+  // on a later visit, which needs a click (the "Reconnect" banner).
+  const FILE_TYPES = [{ description: 'ELM Team Hub data', accept: { 'application/json': ['.json'] } }];
+  const fileApi = typeof window.showSaveFilePicker === 'function' && typeof window.showOpenFilePicker === 'function';
+  // state: unsupported | none | connected | reconnect | error
+  const df = { handle: null, state: fileApi ? 'none' : 'unsupported', lastSaved: 0, timer: null, queue: Promise.resolve() };
+
+  function handleStore(action, value) {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('elm-team-hub', 1);
+      req.onupgradeneeded = () => req.result.createObjectStore('kv');
+      req.onerror = () => reject(req.error);
+      req.onsuccess = () => {
+        const idb = req.result;
+        const tx = idb.transaction('kv', action === 'get' ? 'readonly' : 'readwrite');
+        const store = tx.objectStore('kv');
+        const r = action === 'get' ? store.get('dataFile') : action === 'set' ? store.put(value, 'dataFile') : store.delete('dataFile');
+        r.onsuccess = () => resolve(r.result);
+        r.onerror = () => reject(r.error);
+        tx.oncomplete = () => idb.close();
+      };
+    });
+  }
+
+  function scheduleFileWrite() {
+    if (df.state !== 'connected') return;
+    clearTimeout(df.timer);
+    df.timer = setTimeout(() => { df.queue = df.queue.then(writeFile); }, 200);
+  }
+
+  async function writeFile() {
+    if (!df.handle) return;
+    try {
+      const w = await df.handle.createWritable();
+      await w.write(serialize());
+      await w.close();
+      df.lastSaved = Date.now();
+      setSync({ fileSynced: df.lastSaved });
+      df.state = 'connected';
+    } catch (e) {
+      df.state = 'error';
+      toast('Could not save to the data file');
+    }
+    renderDataFile();
+  }
+
+  // mode: 'new' (empty file just created), 'open' (user chose to load it), 'reconnect' (remembered file)
+  async function linkHandle(handle, mode) {
+    if (mode !== 'new') {
+      const text = await (await handle.getFile()).text();
+      if (text.trim()) {
+        const fileDb = parseBackup(text);
+        const s = getSync();
+        const unsaved = (s.localChanged || 0) > (s.fileSynced || 0);
+        const keepLocal = mode === 'reconnect' && unsaved && confirm(
+          `You made changes that were not saved to "${handle.name}".\n\n` +
+          'OK = keep these changes and save them to the file\nCancel = discard them and load the file');
+        if (!keepLocal) { db = fileDb; persistLocal(); render(); }
+      }
+    }
+    df.handle = handle;
+    df.state = 'connected';
+    try { await handleStore('set', handle); } catch (e) { /* remembered for this visit only */ }
+    await (df.queue = df.queue.then(writeFile));
+    if (df.state !== 'connected') throw new Error('write failed');
+  }
+
+  function fileError(e, fallback) {
+    if (e && e.name === 'AbortError') return; // user closed the picker
+    toast(e && (e instanceof SyntaxError || e.message === 'bad file') ? 'That file is not ELM Team Hub data' : fallback);
+  }
+
+  async function createDataFile() {
+    try {
+      const h = await window.showSaveFilePicker({ suggestedName: 'elm-team-hub-data.json', types: FILE_TYPES });
+      await linkHandle(h, 'new');
+      closeModal();
+      toast(`Now saving to ${h.name}`);
+    } catch (e) { fileError(e, 'Could not create the file'); }
+  }
+
+  async function openDataFile() {
+    try {
+      const [h] = await window.showOpenFilePicker({ types: FILE_TYPES });
+      if ((await h.requestPermission({ mode: 'readwrite' })) !== 'granted') return toast('Permission is needed to save to the file');
+      const text = await (await h.getFile()).text();
+      if (text.trim()) parseBackup(text); // reject a wrong file before asking
+      if (!confirm(`Load the data from "${h.name}"?\nIt replaces the data currently shown.`)) return;
+      await linkHandle(h, 'open');
+      closeModal();
+      toast(`Loaded and saving to ${h.name}`);
+    } catch (e) { fileError(e, 'Could not open the file'); }
+  }
+
+  async function reconnectDataFile() {
+    if (!df.handle) return;
+    try {
+      if ((await df.handle.requestPermission({ mode: 'readwrite' })) !== 'granted') return;
+      await linkHandle(df.handle, 'reconnect');
+      toast(`Connected to ${df.handle.name}`);
+    } catch (e) {
+      df.state = 'error';
+      renderDataFile();
+      fileError(e, 'Could not open the data file — it may have been moved or deleted');
+    }
+  }
+
+  async function disconnectDataFile() {
+    df.handle = null;
+    df.state = 'none';
+    try { await handleStore('del'); } catch (e) { /* ignore */ }
+    closeModal();
+    renderDataFile();
+    toast('Data is now saved in this browser only');
+  }
+
+  function renderDataFile() {
+    const name = df.handle ? df.handle.name : '';
+    const view = {
+      unsupported: ['idle', 'Saved in this browser only', 'Use Chrome or Edge to save to a file'],
+      none: ['idle', 'Saved in this browser only', 'Click to save to a file in your folder'],
+      connected: ['ok', `Saving to ${name}`, df.lastSaved ? 'Last saved ' + new Date(df.lastSaved).toLocaleTimeString(undefined, { timeStyle: 'short' }) : 'Connected'],
+      reconnect: ['warn', `Reconnect ${name}`, 'Click to allow access'],
+      error: ['bad', `Not saving to ${name}`, 'Click to reconnect']
+    }[df.state];
+    document.getElementById('df-dot').className = 'df-dot ' + view[0];
+    document.getElementById('df-title').textContent = view[1];
+    document.getElementById('df-sub').textContent = view[2];
+
+    const needsClick = df.state === 'reconnect' || df.state === 'error';
+    document.getElementById('df-banner').hidden = !needsClick;
+    if (needsClick) {
+      document.getElementById('df-banner-text').textContent = df.state === 'reconnect'
+        ? `Click Reconnect so changes keep saving to your data file "${name}".`
+        : `Changes are not being saved to "${name}". Reconnect, or choose the file again if you moved it.`;
+    }
+  }
+
+  function openDataFileDialog() {
+    editing = null;
+    document.getElementById('modal-title').textContent = 'Data file';
+    $del.hidden = true;
+    $save.hidden = true;
+    $cancel.textContent = 'Close';
+    const name = df.handle ? esc(df.handle.name) : '';
+    const tip = '<p class="muted">Tip: save it in your ELM Team Hub folder, next to <b>index.html</b>. Keep using Export now and then for extra backups.</p>';
+    const body = {
+      unsupported: `<p>Saving to a file needs <b>Google Chrome</b> or <b>Microsoft Edge</b>. This browser doesn't support it.</p>
+        <p class="muted">Your data is still saved in this browser. Use <b>Export</b> to download backups.</p>`,
+      none: `<p>Right now your data is saved <b>inside this browser only</b>. Link a data file to keep everything in a folder you choose; every change is saved to it automatically.</p>
+        <div class="df-choices">
+          <button type="button" class="btn primary" data-df="create">📄 Create a new data file</button>
+          <button type="button" class="btn ghost" data-df="open">📂 Open an existing data file</button>
+        </div>
+        <p class="muted">Create a new file to start saving what you have now. Open an existing one (or a backup from Export) to load its data.</p>${tip}`,
+      connected: `<p>✅ Your data is saved automatically to <b>${name}</b>${df.lastSaved ? ` (last saved ${esc(fmtTime(df.lastSaved))})` : ''}.</p>
+        <div class="df-choices">
+          <button type="button" class="btn ghost" data-df="open">📂 Switch to another file</button>
+          <button type="button" class="btn ghost" data-df="create">📄 Save to a new file</button>
+          <button type="button" class="btn danger ghost" data-df="disconnect">Stop saving to file</button>
+        </div>${tip}`,
+      reconnect: `<p>The browser needs your permission again to save to <b>${name}</b>.</p>
+        <div class="df-choices"><button type="button" class="btn primary" data-df="reconnect">Reconnect</button>
+        <button type="button" class="btn ghost" data-df="open">📂 Choose the file again</button></div>`,
+      error: `<p>Changes can't be saved to <b>${name}</b>. It may have been moved, renamed or deleted.</p>
+        <div class="df-choices"><button type="button" class="btn primary" data-df="reconnect">Try again</button>
+        <button type="button" class="btn ghost" data-df="open">📂 Choose the file again</button>
+        <button type="button" class="btn ghost" data-df="create">📄 Save to a new file</button></div>`
+    }[df.state];
+    $body.innerHTML = `<div class="df-dialog">${body}</div>`;
+    $modal.hidden = false;
+  }
+
+  $body.addEventListener('click', e => {
+    const b = e.target.closest('[data-df]');
+    if (!b) return;
+    ({ create: createDataFile, open: openDataFile, reconnect: reconnectDataFile, disconnect: disconnectDataFile })[b.dataset.df]();
+  });
+  document.getElementById('btn-datafile').addEventListener('click', openDataFileDialog);
+  document.getElementById('df-banner-btn').addEventListener('click', reconnectDataFile);
+
+  async function initDataFile() {
+    if (fileApi) {
+      let h = null;
+      try { h = await handleStore('get'); } catch (e) { /* no remembered file */ }
+      if (h) {
+        df.handle = h;
+        let perm = 'prompt';
+        try { perm = await h.queryPermission({ mode: 'readwrite' }); } catch (e) { /* ask */ }
+        if (perm === 'granted') {
+          try { await linkHandle(h, 'reconnect'); } catch (e) { df.state = 'error'; }
+        } else df.state = 'reconnect';
+      }
+    }
+    renderDataFile();
+  }
 
   // ---------- Theme ----------
   function applyTheme(theme) {
@@ -719,4 +976,5 @@
   if (VIEW_TITLES[initial]) ui.view = initial;
   updateBadges();
   render();
+  initDataFile();
 })();

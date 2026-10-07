@@ -34,6 +34,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; height: 100%; }
 body {
   font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
@@ -71,6 +72,28 @@ a { color: var(--brand); }
 .nav-item .ico { width: 20px; text-align: center; }
 .badge { margin-left: auto; background: var(--brand); color: #fff; font-size: 11px; border-radius: 10px; padding: 0 7px; min-width: 20px; text-align: center; }
 .badge:empty { display: none; }
+.datafile {
+  display: flex; align-items: center; gap: 10px; margin: 0 10px 10px; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2);
+  color: var(--text); font: inherit; text-align: left; cursor: pointer;
+}
+.datafile:hover { border-color: var(--brand); }
+.df-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; background: var(--idle); }
+.df-dot.ok { background: var(--ok); }
+.df-dot.warn { background: var(--warn); }
+.df-dot.bad { background: var(--bad); }
+.df-text { display: flex; flex-direction: column; min-width: 0; font-size: 12px; font-weight: 600; }
+.df-text span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.df-text small { font-weight: 400; color: var(--muted); font-size: 11px; }
+.banner {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin: 16px 24px 0; padding: 10px 14px; border-radius: 10px;
+  background: var(--warn-bg); color: var(--text); border: 1px solid var(--warn); font-weight: 600;
+}
+.banner[hidden] { display: none; }
+.banner span { flex: 1; min-width: 200px; }
+.df-dialog p { margin: 0 0 14px; }
+.df-choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
 .sidebar-footer { display: flex; gap: 6px; padding: 14px; border-top: 1px solid var(--border); }
 
 .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -219,6 +242,7 @@ td .desc { color: var(--muted); font-size: 12px; margin-top: 2px; white-space: p
 .overdue { color: var(--bad) !important; font-weight: 600; }
 .quick-add { display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
 .quick-add input { flex: 1; min-width: 0; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); }
+.quick-add input.invalid { outline: 2px solid var(--bad); outline-offset: -1px; }
 .quick-add select { padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); }
 
 /* ---------- Notes ---------- */
@@ -256,6 +280,7 @@ td .desc { color: var(--muted); font-size: 12px; margin-top: 2px; white-space: p
   .search { order: 10; width: 100%; }
   .search input { width: 100%; }
   .content { padding: 16px; }
+  .banner { margin: 12px 16px 0; }
   .row2 { grid-template-columns: 1fr; }
   .stats { gap: 10px; }
   .hide-sm { display: none; }
