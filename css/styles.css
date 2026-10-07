@@ -242,6 +242,7 @@ td .desc { color: var(--muted); font-size: 12px; margin-top: 2px; white-space: p
 .overdue { color: var(--bad) !important; font-weight: 600; }
 .quick-add { display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
 .quick-add input { flex: 1; min-width: 0; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); }
+.quick-add input.invalid { outline: 2px solid var(--bad); outline-offset: -1px; }
 .quick-add select { padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); }
 
 /* ---------- Notes ---------- */

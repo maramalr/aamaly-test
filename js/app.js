@@ -577,7 +577,13 @@
 
     const now = Date.now();
     if (id) Object.assign(find(coll, id), data, { updated: now });
-    else db[coll].push(Object.assign({ id: uid(), created: now, updated: now }, data));
+    else {
+      db[coll].push(Object.assign({ id: uid(), created: now, updated: now }, data));
+      // Show the new item even if the current tab or search would hide it.
+      const filterKey = { handovers: 'handoverFilter', urls: 'envFilter', team: 'teamFilter', todos: 'todoFilter' }[coll];
+      if (filterKey) ui[filterKey] = 'All';
+      clearSearch();
+    }
     save();
     closeModal();
     render();
@@ -657,15 +663,34 @@
   $content.addEventListener('submit', e => {
     if (e.target.dataset.form !== 'quick-todo') return;
     e.preventDefault();
-    const title = e.target.elements.title.value.trim();
-    if (!title) return;
+    const field = e.target.elements.title;
+    const title = field.value.trim();
+    if (!title) {
+      field.classList.add('invalid');
+      field.focus();
+      toast('Type a task first, then click Add');
+      return;
+    }
     const now = Date.now();
     db.todos.push({ id: uid(), title, priority: e.target.elements.priority.value, due: todayISO(), category: '', notes: '', done: false, created: now, updated: now });
+    // The new task is due today: switch away from a tab or search that would hide it.
+    if (ui.view === 'todos' && ui.todoFilter !== 'Today' && ui.todoFilter !== 'All') ui.todoFilter = 'Today';
+    clearSearch();
     save();
     render();
+    toast('Task added');
     const input = $content.querySelector('.quick-add input');
     if (input) input.focus();
   });
+
+  $content.addEventListener('input', e => {
+    if (e.target.classList.contains('invalid')) e.target.classList.remove('invalid');
+  });
+
+  function clearSearch() {
+    ui.search = '';
+    document.getElementById('search').value = '';
+  }
 
   document.getElementById('btn-add').addEventListener('click', () => { if (SCHEMAS[ui.view]) openModal(ui.view); });
   document.getElementById('btn-menu').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
