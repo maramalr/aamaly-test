@@ -12,6 +12,10 @@ from a local folder (file://), so keep it working with no server and no build st
   - `VIEWS` holds one render function per page; event handling is delegated via `data-act` attributes
   - data is stored in `localStorage` under `elm-team-hub-v1`; Export/Import writes/reads JSON `{ app, version, exported, data }`
   - optional data file (Chrome/Edge, File System Access API): `save()` also writes the same JSON to a file the user linked; the file handle is kept in IndexedDB (`elm-team-hub` / `kv` / `dataFile`); `elm-team-hub-sync` tracks `localChanged` vs `fileSynced` so edits made while disconnected prompt before being overwritten; the "Reconnect" banner re-requests permission
+- QA tracker (mirrors the owner's "QA Daily Status Tracker" workbook): collections `qaTasks` (`weekStart` = Sunday ISO date, `member`, `system`, `task`, `build`, `testPlan`, `status` in `QA_STATUS`, `due`, `expectedBuild`, `notes`) and `systems`; team members come from `team`. Weeks are Sun–Thu (`weekStartOf`, `weekLabel`). `buildReport(ws, refDate)` drives the Reports page, the copy-as-text and the Excel export; overdue = due before refDate and not Done
+  - Excel import (`readXlsx` / `parseTracker` / `mergeTracker`) unzips the .xlsx with `DecompressionStream` and parses XML with `DOMParser`; re-import updates tasks matched on week + member + system + task
+  - Excel export (`exportXlsx`) writes a stored (uncompressed) zip by hand: Summary sheet uses COUNTIFS formulas over the Tasks sheet with cached values; verify changes with LibreOffice recalculation
+- The repo is public: never commit real team names, tasks or the owner's Excel files; real data arrives only through the in-app import
 - `assets/elm-logo.svg` — official ELM logo uploaded by the owner (wide wordmark, dark-navy text)
 
 ## Conventions

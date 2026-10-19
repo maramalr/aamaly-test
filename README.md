@@ -18,10 +18,22 @@ To share it with the team, you can host the folder on any static web server
 | **Handovers** | Record handovers: system, from → to, date, priority, ticket, details, links. Filter by status (Pending / In Progress / Completed / Blocked) and change status inline |
 | **Test URLs** | Store test links per environment (DEV, SIT, UAT, Staging, Pre-Prod, PROD) with test user and notes. One-click **Open**, **Copy URL**, **Copy user** |
 | **Team Status** | Each member's availability (Available, Busy, In Meeting, On Leave, Offline), handover status, current task, backup person, return date |
+| **QA Tracker** | Weekly QA tasks (weeks run Sunday – Thursday): team member, system, task, build, test plan, status, due date, expected build, notes. Days to due and overdue are automatic. Filter by week, member, system and status; copy a task or carry all unfinished tasks to next week |
+| **Reports** | Daily report (pick a date) and Weekly report (pick a week): counts by team member and by system, overdue, task details. **Copy as text** for email/Teams, **Print / PDF**, and **Export to Excel** |
+| **Systems** | Your systems with a status (Active, Release Week, Maintenance, On Hold) and this week's QA tasks |
 | **To-Do** | Daily task list with priority, due date, category. Filters: Today / Upcoming / No date / Completed / All. Overdue tasks are highlighted |
 | **Notes** | Color-coded notes, pin important ones to the top |
 
 Also: search on every page, dark mode, mobile-friendly layout, and **Export / Import** (JSON backup).
+
+## QA tracker: import and export Excel
+
+- **Import Excel tracker** (QA Tracker or Systems page) reads your *QA Daily Status Tracker* `.xlsx`
+  in the browser: team members and systems from the **Lists** sheet, tasks from **Weekly Tasks**.
+  Importing again updates the same tasks instead of duplicating them, so you can re-import the latest Excel any time.
+- **Export to Excel** (Reports page) downloads an `.xlsx` with a **Summary** sheet (by team member and by system,
+  with overdue) and a **Tasks** sheet in the tracker's columns. The summary counts are Excel formulas over the
+  Tasks sheet, so they update if you edit tasks in Excel.
 
 ## Where is my data stored?
 
